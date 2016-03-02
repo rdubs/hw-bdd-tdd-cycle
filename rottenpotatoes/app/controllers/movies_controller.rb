@@ -8,8 +8,20 @@ class MoviesController < ApplicationController
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
+    @similar_path = movie_path(@movie) + '/similar'
   end
 
+  def similar
+    id = params[:id] 
+    @movie = Movie.find(id) # get movie by id
+    if not @movie.director? or @movie.director == ''
+      flash[:notice] = "'#{@movie.title}' has no director info"
+      redirect_to movies_path
+    else 
+      @movie_list = Movie.where(director: @movie.director)
+    end
+  end
+  
   def index
     sort = params[:sort] || session[:sort]
     case sort
